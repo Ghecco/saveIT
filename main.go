@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/Ghecco/saveIT/config"
 	"github.com/ichtrojan/thoth"
 	"github.com/joho/godotenv"
 )
@@ -33,6 +34,7 @@ func main() {
 		logger.Log(errors.New("PORT not set in .env"))
 		log.Fatal("PORT not set in .env")
 	}
-	log.Printf("Go_Todo App Version:%s ", version)
+	config.Database()
+	log.Printf("saveIT Version:%s ", version)
 	log.Print("Started web app on port :" + port)
 }
