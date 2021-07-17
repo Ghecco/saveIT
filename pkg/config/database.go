@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/Ghecco/saveIT/models"
+	"github.com/Ghecco/saveIT/pkg/models"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ichtrojan/thoth"
 	"gorm.io/driver/mysql"
@@ -57,6 +57,7 @@ func Database() *gorm.DB {
 		if db.Migrator().HasTable(&models.User{}) == false {
 			err := db.Table("users").AutoMigrate(&models.User{})
 			if err != nil {
+				logger.Log(err)
 				log.Fatal(err)
 			}
 			dbchange++
@@ -64,6 +65,7 @@ func Database() *gorm.DB {
 		if db.Migrator().HasTable(&models.Idea{}) == false {
 			err := db.Table("ideas").AutoMigrate(&models.Idea{})
 			if err != nil {
+				logger.Log(err)
 				log.Fatal(err)
 			}
 			dbchange++

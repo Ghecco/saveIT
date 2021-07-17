@@ -5,9 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/Ghecco/saveIT/config"
+	"github.com/Ghecco/saveIT/pkg/config"
 	"github.com/ichtrojan/thoth"
-	"github.com/joho/godotenv"
 )
 
 func main() {
