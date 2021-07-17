@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/Ghecco/saveIT/models"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ichtrojan/thoth"
 	"gorm.io/driver/mysql"
@@ -50,6 +51,26 @@ func Database() *gorm.DB {
 		fmt.Println("errore, connessione col database MySQL non andata a buon fine.")
 	} else {
 		fmt.Println("nessun errore, connessione col database MySQL con successo")
+
+		var dbchange int
+
+		if db.Migrator().HasTable(&models.User{}) == false {
+			err := db.Table("users").AutoMigrate(&models.User{})
+			if err != nil {
+				log.Fatal(err)
+			}
+			dbchange++
+		}
+		if db.Migrator().HasTable(&models.Idea{}) == false {
+			err := db.Table("ideas").AutoMigrate(&models.Idea{})
+			if err != nil {
+				log.Fatal(err)
+			}
+			dbchange++
+		}
+		if dbchange != 0 {
+			fmt.Println("some tables have been created in the database, as they are not present.")
+		}
 	}
 	return db
 }
