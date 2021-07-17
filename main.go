@@ -34,7 +34,8 @@ func main() {
 		logger.Log(errors.New("PORT not set in .env"))
 		log.Fatal("PORT not set in .env")
 	}
-	config.Database()
+
+	config.Database() // testing
 	log.Printf("saveIT Version:%s ", version)
 	log.Print("Started web app on port :" + port)
 }
