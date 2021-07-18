@@ -1,13 +1,13 @@
 package models
 
 type User struct {
-	ID       uint `gorm:"primaryKey;autoIncrement:true"`
+	ID       uint64 `gorm:"primaryKey"`
 	Name     string
 	Password string
 }
 
 type Idea struct {
-	ID      uint `gorm:"primaryKey;autoIncrement:true"`
+	ID      uint64 `gorm:"primaryKey"`
 	Content string
-	User    User `gorm:"foreignKey:ID"`
+	UserID  uint64
 }
