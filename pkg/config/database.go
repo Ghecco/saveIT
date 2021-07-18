@@ -9,12 +9,18 @@ import (
 	"github.com/Ghecco/saveIT/pkg/models"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ichtrojan/thoth"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 func Database() *gorm.DB {
 	logger, _ := thoth.Init("json")
+
+	if err := godotenv.Load(); err != nil {
+		logger.Log(errors.New(".env is not found"))
+		log.Fatal(".env is not found.")
+	}
 
 	user, exist := os.LookupEnv("DB_USER")
 

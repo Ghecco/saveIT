@@ -6,7 +6,9 @@ import (
 	"os"
 
 	"github.com/Ghecco/saveIT/pkg/config"
+	"github.com/Ghecco/saveIT/pkg/controllers"
 	"github.com/ichtrojan/thoth"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -34,7 +36,13 @@ func main() {
 		log.Fatal("PORT not set in .env")
 	}
 
-	config.Database() // testing
+	// Testing
+
+	config.Database()
+	controllers.AddUser("wqdwd", "ciao")
+	controllers.AddIdea(1, "ciao nuova idea")
+
 	log.Printf("saveIT Version:%s ", version)
 	log.Print("Started web app on port :" + port)
+
 }
