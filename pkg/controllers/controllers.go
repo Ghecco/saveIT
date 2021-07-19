@@ -9,13 +9,26 @@ import (
 	"gorm.io/gorm"
 )
 
+const INVALID = -1
+
 var (
 	database = config.Database()
 )
 
-// User
+// User function
 
 // Add User function
+
+func GetUserByID(username string) (uint64, error) {
+	var user models.User
+	err := database.Model(&models.User{}).Where("Name = ?", username).Take(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		fmt.Printf("Username %s not found in database\n", username)
+		return 0, errors.New("username not found\n")
+	}
+	fmt.Printf("The ID of username:%s is %d\n", username, user.ID)
+	return user.ID, nil
+}
 func AddUser(username, password string) bool {
 	var count int64
 	database.Model(&models.User{}).Where("Name = ?", username).Count(&count)
@@ -45,6 +58,7 @@ func AddUser(username, password string) bool {
 	return true
 }
 
+// Remove user function
 func RemoveUser(username string) bool {
 	var user models.User
 	err := database.Where("name = ?", username).Find(&user).Error
@@ -56,6 +70,8 @@ func RemoveUser(username string) bool {
 	database.Where("ID = ?", user.ID).Delete(&user)
 	return true
 }
+
+// Ideas Function
 
 func AddIdea(userID uint64, content string) bool {
 	var count int64
@@ -75,6 +91,7 @@ func AddIdea(userID uint64, content string) bool {
 	return true
 }
 
+// remove idea function
 func RemoveIdea(ideaID uint64) bool {
 	var idea models.Idea
 	err := database.Where("ID = ?", ideaID).Find(&idea).Error
@@ -87,6 +104,7 @@ func RemoveIdea(ideaID uint64) bool {
 	return true
 }
 
+// remove all ideas  of one user (with userid)
 func RemoveIdeas(userID uint64) bool {
 	var idea models.Idea
 	var count int64
