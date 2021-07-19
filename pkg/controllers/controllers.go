@@ -19,15 +19,26 @@ var (
 
 // Add User function
 
-func GetUserByID(username string) (uint64, error) {
+func GetIDByUsername(username string) (error, uint64) {
 	var user models.User
 	err := database.Model(&models.User{}).Where("Name = ?", username).Take(&user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		fmt.Printf("Username %s not found in database\n", username)
-		return 0, errors.New("username not found\n")
+		return errors.New("username not found\n"), 0
 	}
 	fmt.Printf("The ID of username:%s is %d\n", username, user.ID)
-	return user.ID, nil
+	return nil, user.ID
+}
+
+func GetUsernameByID(UserID uint64) (error, string) {
+	var user models.User
+	err := database.Model(&models.User{}).Where("ID = ?", UserID).Take(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		fmt.Printf("ID %d not found in database\n", UserID)
+		return errors.New("ID not found\n"), ""
+	}
+	fmt.Printf("The Username of userID:%d is %s\n", UserID, user.Name)
+	return nil, user.Name
 }
 func AddUser(username, password string) bool {
 	var count int64
@@ -72,6 +83,22 @@ func RemoveUser(username string) bool {
 }
 
 // Ideas Function
+
+func GetUserIdeaID(ideaID uint64) (uint64, error) {
+	var idea models.Idea
+	err := database.Model(&models.Idea{}).Where("ID = ?", ideaID).Take(&idea).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		fmt.Printf("idea id %d not found in database", idea.ID)
+		return 0, errors.New("Idea not found\n")
+	}
+	err, name := GetUsernameByID(idea.UserID)
+	if err != nil {
+		fmt.Print("name error")
+		return 0, errors.New("name error")
+	}
+	fmt.Printf("Idea id %d by UserID %s (%s)", ideaID, idea.UserID, name)
+	return idea.UserID, nil
+}
 
 func AddIdea(userID uint64, content string) bool {
 	var count int64
