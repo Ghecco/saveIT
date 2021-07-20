@@ -144,3 +144,17 @@ func RemoveIdeas(userID uint64) bool {
 	fmt.Printf("Removed %d ideas related to userID %d\n", count, userID)
 	return true
 }
+
+func GetUserIdeas(userID uint64) (error, []models.Idea) {
+	var ideas []models.Idea
+	var count int64
+	database.Model(&models.Idea{}).Where("user_id = ?", userID).Count(&count)
+	if count == 0 {
+		fmt.Printf("No idea related to user id %d\n", userID)
+		return errors.New("No ideas found in database."), ideas
+	}
+	database.Table("ideas").Where("user_id = ?", userID).Scan(&ideas)
+	//fmt.Println(ideas)
+	fmt.Printf("Numbers of ideas of userID %d are %d", userID, count)
+	return nil, ideas
+}

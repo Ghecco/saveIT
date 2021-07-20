@@ -2,10 +2,10 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 
-	"github.com/Ghecco/saveIT/pkg/config"
 	"github.com/Ghecco/saveIT/pkg/controllers"
 	"github.com/ichtrojan/thoth"
 	"github.com/joho/godotenv"
@@ -38,10 +38,16 @@ func main() {
 
 	// Testing
 
-	config.Database()
-	controllers.AddUser("wqdwd", "ciao")
-	controllers.AddIdea(1, "ciao nuova idea")
+	controllers.AddIdea(5, "ciao nuova idea")
+	controllers.AddIdea(5, "3REFFSF")
+	controllers.AddIdea(5, "RSDFSDSS")
+	//controllers.RemoveUser("wqdwd")
+	//	controllers.RemoveIdeas(5)
+	_, id := controllers.GetIDByUsername("wqdwd")
+	fmt.Printf("name %d", id)
 
+	err, ideas := controllers.GetUserIdeas(5)
+	fmt.Println(ideas)
 	log.Printf("saveIT Version:%s ", version)
 	log.Print("Started web app on port :" + port)
 
