@@ -7,7 +7,7 @@ type User struct {
 }
 
 type Idea struct {
-	ID      uint64 `gorm:"primaryKey"`
-	Content string
-	UserID  uint64
+	ID     uint64 `gorm:"primaryKey"`
+	UserID uint64
+	Title  string
 }
