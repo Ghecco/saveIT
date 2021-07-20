@@ -100,7 +100,7 @@ func GetUserIdeaID(ideaID uint64) (uint64, error) {
 	return idea.UserID, nil
 }
 
-func AddIdea(userID uint64, content string) bool {
+func AddIdea(userID uint64, title string, content ...string) bool {
 	var count int64
 	database.Model(&models.User{}).Where("ID = ?", userID).Count(&count)
 	if count == 0 {
@@ -108,12 +108,12 @@ func AddIdea(userID uint64, content string) bool {
 		return false
 	}
 
-	if len(content) < 4 || len(content) > 100 {
-		fmt.Print("Content lenght error, 4-100\n")
+	if len(title) < 4 || len(title) > 100 {
+		fmt.Print("Title lenght error, 4-100\n")
 		return false
 	}
-	idea := models.Idea{UserID: userID, Content: content}
-	fmt.Printf("new idea: %d | content: %s\n", idea.UserID, idea.Content)
+	idea := models.Idea{UserID: userID, Title: title}
+	fmt.Printf("new idea: %d | Title: %s\n", idea.UserID, idea.Title)
 	database.Create(&idea)
 	return true
 }
