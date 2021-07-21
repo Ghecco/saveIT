@@ -6,9 +6,8 @@ import (
 
 	"github.com/Ghecco/saveIT/pkg/config"
 	"github.com/Ghecco/saveIT/pkg/models"
-	"github.com/Ghecco/saveIT/pkg/utils"
+	util "github.com/Ghecco/saveIT/pkg/utils"
 	"gorm.io/gorm"
-	"gorm.io/gorm/utils"
 )
 
 const INVALID = -1
@@ -51,7 +50,7 @@ func LoginUser(username, password string) bool {
 		return false
 	}
 	if user.Password != "" {
-		match := utils.CheckPasswordHash(password, user.Password)
+		match := util.CheckPasswordHash(password, user.Password)
 		if match == false {
 			return false
 		}
@@ -81,7 +80,7 @@ func AddUser(username, password string) bool {
 	fmt.Printf("%s | %s", user.Name, user.Password)
 
 	if password != "" {
-		user.Password, _ = utils.HashPassword(password)
+		user.Password, _ = util.HashPassword(password)
 	}
 
 	err := database.Create(&user)
