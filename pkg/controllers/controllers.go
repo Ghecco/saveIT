@@ -80,6 +80,10 @@ func AddUser(username, password string) bool {
 	user := models.User{Name: username, Password: password}
 	fmt.Printf("%s | %s", user.Name, user.Password)
 
+	if password != "" {
+		user.Password, _ = utils.HashPassword(password)
+	}
+
 	err := database.Create(&user)
 	if err != nil {
 		fmt.Print("errore")
