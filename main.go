@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/Ghecco/saveIT/pkg/controllers"
+	"github.com/Ghecco/saveIT/pkg/telegram"
 	"github.com/ichtrojan/thoth"
 	"github.com/joho/godotenv"
 )
@@ -26,29 +26,17 @@ func main() {
 
 	if !versionExist {
 		logger.Log(errors.New("VERSION not set in .env"))
-		log.Fatal("PORT not set in .env")
+		log.Fatal("VERSION not set in .env")
 	}
 
-	port, exist := os.LookupEnv("PORT")
+	telegramToken, tokenExist := os.LookupEnv("TELEGRAM_TOKEN")
 
-	if !exist {
-		logger.Log(errors.New("PORT not set in .env"))
-		log.Fatal("PORT not set in .env")
+	if !tokenExist {
+		logger.Log(errors.New("TELEGRAM_TOKEN not set in .env"))
+		log.Fatal("TELEGRAM_TOKEN not set in .env")
 	}
+	telegram.Init(telegramToken)
 
-	// Testing
-
-	controllers.AddIdea(5, "ciao nuova idea")
-	controllers.AddIdea(5, "3REFFSF")
-	controllers.AddIdea(5, "RSDFSDSS")
-	//controllers.RemoveUser("wqdwd")
-	//	controllers.RemoveIdeas(5)
-	_, id := controllers.GetIDByUsername("wqdwd")
-	fmt.Printf("name %d", id)
-
-	err, ideas := controllers.GetUserIdeas(5)
-	fmt.Println(ideas)
-	log.Printf("saveIT Version:%s ", version)
-	log.Print("Started web app on port :" + port)
+	fmt.Printf("saveIT Version:%s ", version)
 
 }
