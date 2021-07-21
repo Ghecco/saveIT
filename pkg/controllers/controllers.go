@@ -6,7 +6,9 @@ import (
 
 	"github.com/Ghecco/saveIT/pkg/config"
 	"github.com/Ghecco/saveIT/pkg/models"
+	"github.com/Ghecco/saveIT/pkg/utils"
 	"gorm.io/gorm"
+	"gorm.io/gorm/utils"
 )
 
 const INVALID = -1
@@ -39,6 +41,23 @@ func GetUsernameByID(UserID uint64) (error, string) {
 	}
 	fmt.Printf("The Username of userID:%d is %s\n", UserID, user.Name)
 	return nil, user.Name
+}
+
+func LoginUser(username, password string) bool {
+	var user models.User
+	err := database.Model(&models.User{}).Where("Name = ?", username).Take(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		fmt.Printf("Username %s not found in database\n", username)
+		return false
+	}
+	if user.Password != "" {
+		match := utils.CheckPasswordHash(password, user.Password)
+		if match == false {
+			return false
+		}
+	}
+	fmt.Printf("Username %s logged.\n", username)
+	return true
 }
 func AddUser(username, password string) bool {
 	var count int64
