@@ -71,7 +71,7 @@ func AddUser(username, password string) bool {
 		return false
 	}
 
-	if len(password) < 3 || len(password) > 24 {
+	if len(password) > 24 { // len(password) < 3 || l
 		fmt.Printf("Password %s is invalid (lenght)\n", username)
 		return false
 	}
@@ -83,11 +83,8 @@ func AddUser(username, password string) bool {
 		user.Password, _ = util.HashPassword(password)
 	}
 
-	err := database.Create(&user)
-	if err != nil {
-		fmt.Print("errore")
-		return false
-	}
+	database.Create(&user)
+
 	return true
 }
 
