@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/Ghecco/saveIT/pkg/config"
 	"github.com/Ghecco/saveIT/pkg/models"
@@ -138,8 +139,10 @@ func AddIdea(userID uint64, title string, content ...string) bool {
 		fmt.Print("Title lenght error, 4-100\n")
 		return false
 	}
-	idea := models.Idea{UserID: userID, Title: title}
-	fmt.Printf("new idea: %d | Title: %s\n", idea.UserID, idea.Title)
+	dt := time.Now()
+
+	idea := models.Idea{UserID: userID, Title: title, Time: dt.Format("01-02-2OO6 15:04")}
+	fmt.Printf("new idea: %d | Title: %s Time:%s\n", idea.UserID, idea.Title, idea.Time)
 	database.Create(&idea)
 	return true
 }
