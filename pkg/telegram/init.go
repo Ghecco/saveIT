@@ -86,6 +86,6 @@ func Init(telegramToken string) {
 			b.Send(m.Sender, "You are logged in successfully !")
 			return
 		}
-		b.Start()
 	})
+	b.Start()
 }
