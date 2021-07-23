@@ -28,6 +28,9 @@ func main() {
 		logger.Log(errors.New("VERSION not set in .env"))
 		log.Fatal("VERSION not set in .env")
 	}
+	fmt.Printf("saveIT Version:%s ", version)
+
+	// Telegram Server
 
 	telegramToken, tokenExist := os.LookupEnv("TELEGRAM_TOKEN")
 
@@ -36,7 +39,5 @@ func main() {
 		log.Fatal("TELEGRAM_TOKEN not set in .env")
 	}
 	telegram.Init(telegramToken)
-
-	fmt.Printf("saveIT Version:%s ", version)
 
 }

@@ -14,6 +14,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// init database function
 func Database() *gorm.DB {
 	logger, _ := thoth.Init("json")
 

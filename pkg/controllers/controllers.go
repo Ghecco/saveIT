@@ -6,7 +6,7 @@ import (
 
 	"github.com/Ghecco/saveIT/pkg/config"
 	"github.com/Ghecco/saveIT/pkg/models"
-	util "github.com/Ghecco/saveIT/pkg/utils"
+	util "github.com/Ghecco/saveIT/pkg/util"
 	"gorm.io/gorm"
 )
 
@@ -20,6 +20,7 @@ var (
 
 // Add User function
 
+// Obtain id from username in the database
 func GetIDByUsername(username string) (error, uint64) {
 	var user models.User
 	err := database.Model(&models.User{}).Where("Name = ?", username).Take(&user).Error
@@ -31,6 +32,7 @@ func GetIDByUsername(username string) (error, uint64) {
 	return nil, user.ID
 }
 
+// Obtain username from userID in the database
 func GetUsernameByID(UserID uint64) (error, string) {
 	var user models.User
 	err := database.Model(&models.User{}).Where("ID = ?", UserID).Take(&user).Error
@@ -42,6 +44,7 @@ func GetUsernameByID(UserID uint64) (error, string) {
 	return nil, user.Name
 }
 
+// Compare the hash password from the database
 func LoginUser(username, password string) bool {
 	var user models.User
 	err := database.Model(&models.User{}).Where("Name = ?", username).Take(&user).Error
@@ -58,6 +61,8 @@ func LoginUser(username, password string) bool {
 	fmt.Printf("Username %s logged.\n", username)
 	return true
 }
+
+// Add user in the database
 func AddUser(username, password string) bool {
 	var count int64
 	database.Model(&models.User{}).Where("Name = ?", username).Count(&count)
@@ -103,6 +108,7 @@ func RemoveUser(username string) bool {
 
 // Ideas Function
 
+// Get precise idea
 func GetUserIdeaID(ideaID uint64) (uint64, error) {
 	var idea models.Idea
 	err := database.Model(&models.Idea{}).Where("ID = ?", ideaID).Take(&idea).Error
@@ -119,6 +125,7 @@ func GetUserIdeaID(ideaID uint64) (uint64, error) {
 	return idea.UserID, nil
 }
 
+// Add idea in the database
 func AddIdea(userID uint64, title string, content ...string) bool {
 	var count int64
 	database.Model(&models.User{}).Where("ID = ?", userID).Count(&count)
@@ -164,6 +171,7 @@ func RemoveIdeas(userID uint64) bool {
 	return true
 }
 
+// Get all user's ideas
 func GetUserIdeas(userID uint64) (error, []models.Idea) {
 	var ideas []models.Idea
 	var count int64
