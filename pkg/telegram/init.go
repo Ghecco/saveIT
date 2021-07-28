@@ -28,24 +28,51 @@ func Init(telegramToken string) {
 		return
 	}
 	var (
-		menuHome   = &tb.ReplyMarkup{ResizeReplyKeyboard: true}
-		menuGoHome = &tb.ReplyMarkup{ResizeReplyKeyboard: true}
+		//home
+		menuHome = &tb.ReplyMarkup{ResizeReplyKeyboard: true}
+
+		// reply buttons
+		btnIdea  = menuHome.Text("🖊 Idea")
+		btnMedia = menuHome.Text("💿 Media")
+
+		// Archive
+		menuHomeArchive = &tb.ReplyMarkup{ResizeReplyKeyboard: true}
+		// Reply Buttons
+		btnAddMedia   = menuHomeArchive.Text("➕ Add Media")
+		btnShowMedias = menuHomeArchive.Text("👁‍🗨 Show my Medias")
+
+		// Ideas
+
+		menuHomeIdea = &tb.ReplyMarkup{ResizeReplyKeyboard: true}
+		menuBack     = &tb.ReplyMarkup{ResizeReplyKeyboard: true}
 		// Reply buttons.
-		btnAdd    = menuHome.Text("➕ Add Idea")
-		btnRemove = menuHome.Text("➖ Remove Idea")
-		btnShow   = menuHome.Text("👁‍🗨 Show my ideas")
+		btnAddIdea    = menuHomeIdea.Text("➕ Add Idea")
+		btnRemoveIdea = menuHomeIdea.Text("➖ Remove Idea")
+		btnShowIdeas  = menuHomeIdea.Text("👁‍🗨 Show my Ideas")
 
-		btnHome = menuGoHome.Text("❌ Home")
+		btnBack = menuBack.Text("❌ Back")
+
+		btnHome = menuBack.Text("🔝 Home")
 	)
-
 	menuHome.Reply(
-		menuHome.Row(btnAdd),
-		menuHome.Row(btnRemove),
-		menuHome.Row(btnShow),
+		menuHome.Row(btnIdea),
+		menuHome.Row(btnMedia),
 	)
 
-	menuGoHome.Reply(
-		menuGoHome.Row(btnHome),
+	menuHomeArchive.Reply(
+		menuHomeArchive.Row(btnAddMedia),
+		menuHomeArchive.Row(btnShowMedias),
+		menuHomeArchive.Row(btnHome),
+	)
+
+	menuHomeIdea.Reply(
+		menuHomeIdea.Row(btnAddIdea),
+		menuHomeIdea.Row(btnRemoveIdea),
+		menuHomeIdea.Row(btnShowIdeas),
+		menuHomeIdea.Row(btnHome),
+	)
+	menuBack.Reply(
+		menuBack.Row(btnBack),
 	)
 	// Handles
 
@@ -91,7 +118,7 @@ func Init(telegramToken string) {
 			Sessions[sessionID].Username = m.Sender.Username
 			Sessions[sessionID].IsLogged = true
 			Sessions[sessionID].Status = STATUS_NONE
-			b.Send(m.Sender, "Registration successful!\nYou will be logged in automatically", menuHome)
+			b.Send(m.Sender, "Registration successful!\nYou will be logged in automatically", menuHomeIdea)
 			return // temp
 
 		case STATUS_LOGIN_PASSWORD:
@@ -111,7 +138,8 @@ func Init(telegramToken string) {
 			Sessions[userSessionID].Status = STATUS_NONE
 
 			fmt.Printf("User %s logged", Sessions[userSessionID].Username)
-			b.Send(m.Sender, "You are logged in successfully !", menuHome)
+			b.Send(m.Sender, "You are logged in successfully !")
+			b.Send(m.Sender, "What do you want to save?", menuHome)
 			return
 		case STATUS_ADD_IDEA:
 			var title, content string
@@ -131,7 +159,7 @@ func Init(telegramToken string) {
 			ok := controllers.AddIdea(userID, title, content)
 			fmt.Printf("Title:%s Content:%s", title, content)
 			if ok {
-				b.Send(m.Sender, fmt.Sprintf("Title:*%s*\nContent:%s", title, content), ModeMarkdown, menuHome)
+				b.Send(m.Sender, fmt.Sprintf("Title:*%s*\nContent:%s", title, content), ModeMarkdown, menuHomeIdea)
 				Sessions[sessionID].Status = STATUS_NONE
 			}
 			return
@@ -152,20 +180,47 @@ func Init(telegramToken string) {
 			ideaID := uint64(ideas[val-1].ID)
 			bool := controllers.RemoveIdea(ideaID)
 			if bool {
-				b.Send(m.Sender, fmt.Sprintf("Removed idea %d.", val), menuHome)
+				b.Send(m.Sender, fmt.Sprintf("Removed idea %d.", val), menuHomeIdea)
 				Sessions[sessionID].Status = STATUS_NONE
 			}
-
+			return
+		case STATUS_ADD_MEDIA:
+			b.Delete(m)
 			return
 		}
+
 	})
 
+	b.Handle(tb.OnPhoto, func(m *tb.Message) {
+		if Sessions[GetSessionID(m.Sender.ID)].Status != STATUS_ADD_MEDIA {
+			b.Delete(m)
+			return
+		}
+		ok := controllers.AddPicture(m.Sender.Username, m.Photo.MediaFile(), b) // temp
+		if ok {
+			b.Send(m.Sender, "✅ Added new picture.")
+		} else {
+			b.Send(m.Sender, "Error: Picture not added")
+		}
+	})
+	b.Handle(tb.OnVideo, func(m *tb.Message) {
+		if Sessions[GetSessionID(m.Sender.ID)].Status != STATUS_ADD_MEDIA {
+			b.Delete(m)
+			return
+		}
+		ok := controllers.AddVideo(m.Sender.Username, m.Video.MediaFile(), b) // temp
+		if ok {
+			b.Send(m.Sender, "✅ Added new video.")
+		} else {
+			b.Send(m.Sender, "Error: Video not added")
+		}
+	})
 	//buttons
-	b.Handle(&btnAdd, func(m *tb.Message) {
-		b.Send(m.Sender, "Insert the new idea Title(4-50)\nAnd down write it content\nExample:\nBuy new car,Buy the new lamborghini", menuGoHome)
+	b.Handle(&btnAddIdea, func(m *tb.Message) {
+		b.Send(m.Sender, "Insert the new idea Title(4-50)\nAnd down write it content\nExample:\nBuy new car,Buy the new lamborghini", menuBack)
 		Sessions[GetSessionID(m.Sender.ID)].Status = STATUS_ADD_IDEA
 	})
-	b.Handle(&btnRemove, func(m *tb.Message) {
+	b.Handle(&btnRemoveIdea, func(m *tb.Message) {
 
 		sessionID := GetSessionID(m.Sender.ID)
 		err, uID := controllers.GetIDByUsername(Sessions[sessionID].Username)
@@ -176,7 +231,7 @@ func Init(telegramToken string) {
 
 		err, ideas := controllers.GetUserIdeas(uID)
 		if err != nil {
-			b.Send(m.Sender, "You have no saved ideas to remove", menuHome)
+			b.Send(m.Sender, "You have no saved ideas to remove", menuHomeIdea)
 			Sessions[GetSessionID(m.Sender.ID)].Status = STATUS_NONE
 			return
 		}
@@ -186,11 +241,11 @@ func Init(telegramToken string) {
 			localMessage = fmt.Sprintf("\n ▪️ %d %s", i+1, v.Title)
 			message += localMessage
 		}
-		b.Send(m.Sender, message, menuGoHome)
+		b.Send(m.Sender, message, menuBack)
 		Sessions[sessionID].Status = STATUS_REMOVE_IDEA
 
 	})
-	b.Handle(&btnShow, func(m *tb.Message) {
+	b.Handle(&btnShowIdeas, func(m *tb.Message) {
 		err, uID := controllers.GetIDByUsername(Sessions[GetSessionID(m.Sender.ID)].Username)
 		if err != nil {
 			fmt.Printf("User %s not present in database. (GetIDByUsername func)", m.Sender.Username)
@@ -199,7 +254,7 @@ func Init(telegramToken string) {
 
 		err, ideas := controllers.GetUserIdeas(uID)
 		if err != nil {
-			b.Send(m.Sender, "You have no saved ideas", menuHome)
+			b.Send(m.Sender, "You have no saved ideas", menuHomeIdea)
 			Sessions[GetSessionID(m.Sender.ID)].Status = STATUS_NONE
 			return
 		}
@@ -215,11 +270,35 @@ func Init(telegramToken string) {
 		}
 		b.Send(m.Sender, message, ModeMarkdown)
 	})
-	b.Handle(&btnHome, func(m *tb.Message) {
+	b.Handle(&btnBack, func(m *tb.Message) {
 		sessionID := GetSessionID(m.Sender.ID)
+		if Sessions[sessionID].Status == STATUS_ADD_MEDIA {
+			b.Send(m.Sender, "Stop media addition.", menuHomeArchive)
+		} else {
+			b.Send(m.Sender, "Home", menuHomeIdea)
+		}
 		Sessions[sessionID].Status = STATUS_NONE
-		b.Send(m.Sender, "Home", menuHome)
+
 	})
 
+	b.Handle(&btnIdea, func(m *tb.Message) {
+		b.Send(m.Sender, "Idea !", menuHomeIdea)
+	})
+	b.Handle(&btnMedia, func(m *tb.Message) {
+		b.Send(m.Sender, "Media!", menuHomeArchive)
+	})
+	b.Handle(&btnHome, func(m *tb.Message) {
+		b.Send(m.Sender, "Home !", menuHome)
+		sessionID := GetSessionID(m.Sender.ID)
+		Sessions[sessionID].Status = STATUS_NONE
+	})
+	b.Handle(&btnAddMedia, func(m *tb.Message) {
+		b.Send(m.Sender, "Send any pictures or videos for save it !", menuBack)
+		sessionID := GetSessionID(m.Sender.ID)
+		Sessions[sessionID].Status = STATUS_ADD_MEDIA
+	})
+	b.Handle(&btnShowMedias, func(m *tb.Message) {
+		controllers.SendFilesToUser(m.Sender.Username, b, m)
+	})
 	b.Start()
 }
