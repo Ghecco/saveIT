@@ -81,7 +81,6 @@ func AddUser(username, password string) bool {
 	}
 
 	database.Create(&user)
-
 	return true
 }
 

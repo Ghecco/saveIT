@@ -38,6 +38,7 @@ func main() {
 		logger.Log(errors.New("TELEGRAM_TOKEN not set in .env"))
 		log.Fatal("TELEGRAM_TOKEN not set in .env")
 	}
+
 	telegram.Init(telegramToken)
 
 }
